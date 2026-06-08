@@ -1,0 +1,17 @@
+numpy
+pandas
+matplotlib
+seaborn
+wordcloud
+tqdm
+nltk
+scikit-learn
+gensim
+torch
+transformers
+datasets
+tensorflow
+langchain
+langchain-community
+requests
+joblib
