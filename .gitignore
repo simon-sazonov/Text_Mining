@@ -1,3 +1,10 @@
+# Ignore everything except group_12
+/*
+!group_12/
+!.gitignore
+
+# Within group_12, ignore cache
 group_12/cache/
 group_12/cache.zip
+
 **/.DS_Store
