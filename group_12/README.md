@@ -7,6 +7,10 @@
    the notebooks if you keep them elsewhere.
 3. (Optional, for Sections 6–7) install Ollama and `ollama pull llama3.2:3b`. Otherwise a GPT-2
    fallback runs automatically.
+4. (Optional) Hugging Face auth — the models are public, but anonymous downloads are rate-limited.
+   Copy `.env.example` to `.env` and paste your token (from https://huggingface.co/settings/tokens,
+   "Read" scope). The notebooks load it automatically; `.env` is gitignored. Never put the token
+   inside the notebooks. (`hf auth login` works too.)
 
 ## Run
 - **`tm_tests_xx.ipynb`** — all experiments. Run top to bottom in VS Code.
