@@ -51,3 +51,34 @@ Six preprocessing techniques were implemented and demonstrated individually in t
 As an example, the tweet "*$ORLY strong up 11.7% into large volume pocket w/ room to $360*" becomes "*ticker strong pct large volume pocket w room num*".
 
 The cleaned text feeds the Bag-of-Words and word2vec representations only. Transformer encoders receive the raw text, because their subword tokenizers handle casing, punctuation and unknown words natively, and removing that surface information would discard cues those models exploit.
+
+# Feature Engineering
+
+Three families of representations feed the classification stage, summarised in Table 1: sparse Bag-of-Words vectors and averaged word2vec embeddings computed on the cleaned text, and transformer sentence embeddings computed on the raw text. Every representation that learns parameters does so on training data only: vectorizer vocabularies and document-frequency weights are fit inside the model pipelines on training folds, and the word2vec model is trained on the training split.
+
+| Representation | Dimensions | Input | Parameters learned from |
+|---|---|---|---|
+| Term counts / TF-IDF | 4,600 (sparse) | cleaned text | training folds |
+| TF-IDF + bigrams | 9,104 (sparse) | cleaned text | training folds |
+| word2vec, averaged | 100 (dense) | cleaned text | training split |
+| MiniLM sentence embeddings | 384 (dense) | raw text | frozen, pretrained |
+| FinBERT — *Extra Work* | 768 (dense) | raw text | frozen, pretrained |
+| twitter-RoBERTa — *Extra Work* | 768 (dense) | raw text | frozen, pretrained |
+
+Table 1: The representation families produced for the classification stage.
+
+## Bag-of-Words
+
+Three variations were implemented: raw term counts, TF-IDF weighting, and TF-IDF over unigrams and bigrams. With terms required to appear in at least two training tweets, the unigram vocabulary contains 4,600 entries; adding bigrams roughly doubles it to 9,104, and the matrices remain extremely sparse (about 0.16% of entries are non-zero), a regime that linear models handle natively. A worked example in the tests notebook traces one tweet ("*WWE stock price target cut to \$57 from \$79 at Benchmark*") through all three variants: raw counts store frequencies alone; TF-IDF shifts weight from corpus-common to rare words (*stock* receives 0.21 against 0.54 for *wwe*, although both occur once in the tweet); and the bigram variant adds word pairs with typically above-average weight, because pairs are rarer than the words they contain. All six mirror-verb bigrams identified in the exploratory analysis (*target cut/raised*, *miss/beat revenue*, *eps miss/beat*) survive cleaning and enter the vocabulary in lemmatised form, so the phrase-level sentiment signal is available to every model trained on this representation.
+
+## word2vec
+
+A skip-gram word2vec model was trained on the 6,679 training tweets (100 dimensions, context window 5, minimum count 2, 10 epochs, single-threaded for reproducibility), and each tweet is represented as the mean of its in-vocabulary word vectors. Training on the project corpus alone keeps the representation leak-free but exposes the limits of 6,679 short texts. The model does learn the earnings cluster — the nearest neighbours of *beat* include *miss*, *eps* and *revenue* — yet *beat* and *miss* are each other's closest neighbours: antonyms occur in the same contexts, so distributional similarity does not encode sentiment polarity, and averaging word vectors may blur exactly the Bearish/Bullish distinction this task requires. Neighbourhoods of rarer words are noisy (*bullish* neighbours include *burn* and *crazy*), which is consistent with the small corpus. This sets a concrete expectation for the evaluation: averaged word2vec should be the weakest family, and pretrained encoders should recover what the small corpus cannot provide.
+
+## Transformer encoders
+
+Sentence embeddings were extracted with the all-MiniLM-L6-v2 sentence-transformer (384 dimensions). The encoder is frozen, so this is feature extraction rather than fine-tuning, and it receives raw text for the reasons given in the preprocessing section. Embeddings for all splits are computed once and cached; encoding runs on GPU when available and falls back to CPU.
+
+**Extra Work.** Two additional transformer encoders beyond the required one were applied, chosen to match the domain from complementary angles: FinBERT, pretrained on financial text (the content), and twitter-RoBERTa, pretrained on tweets (the register). For both, a tweet is represented by the mean of the last hidden state over its real tokens, giving 768-dimensional frozen embeddings.
+
+Encoded under every representation, the same example tweet shows the two regimes side by side: the TF-IDF row activates 14 named features out of 9,104, each readable on its own (*target cut* among them), while the dense families produce vectors in which every coordinate is non-zero and individually meaningless — 100, 384 or 768 dimensions whose information lies in the distances between tweets rather than in any single value. The two regimes therefore offer the classifiers different evidence, explicit lexical features against pretrained semantic context, and the classification stage measures which carries more sentiment signal.
