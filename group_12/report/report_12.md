@@ -56,14 +56,21 @@ The cleaned text feeds the Bag-of-Words and word2vec representations only. Trans
 
 Three families of representations feed the classification stage, summarised in Table 1: sparse Bag-of-Words vectors and averaged word2vec embeddings (Mikolov et al., 2013) computed on the cleaned text, and transformer sentence embeddings computed on the raw text. Every representation that learns parameters does so on training data only: vectorizer vocabularies and document-frequency weights are fit inside the model pipelines on training folds, and the word2vec model is trained on the training split.
 
-| Representation | Dimensions | Input | Parameters learned from |
-|---|---|---|---|
-| Term counts / TF-IDF | 4,600 (sparse) | cleaned text | training folds |
-| TF-IDF + bigrams | 9,104 (sparse) | cleaned text | training folds |
-| word2vec, averaged | 100 (dense) | cleaned text | training split |
-| MiniLM sentence embeddings | 384 (dense) | raw text | frozen, pretrained |
-| FinBERT — *Extra Work* | 768 (dense) | raw text | frozen, pretrained |
-| twitter-RoBERTa — *Extra Work* | 768 (dense) | raw text | frozen, pretrained |
+```{=typst}
+#align(center, table(
+  columns: 4,
+  align: (left, center, center, center),
+  stroke: 0.5pt + luma(140),
+  inset: 6pt,
+  table.header([*Representation*], [*Dimensions*], [*Input*], [*Parameters learned from*]),
+  [Term counts / TF-IDF], [4,600 (sparse)], [cleaned text], [training folds],
+  [TF-IDF + bigrams], [9,104 (sparse)], [cleaned text], [training folds],
+  [word2vec, averaged], [100 (dense)], [cleaned text], [training split],
+  [MiniLM sentence embeddings], [384 (dense)], [raw text], [frozen, pretrained],
+  [FinBERT — _Extra Work_], [768 (dense)], [raw text], [frozen, pretrained],
+  [twitter-RoBERTa — _Extra Work_], [768 (dense)], [raw text], [frozen, pretrained],
+))
+```
 
 Table 1: The representation families produced for the classification stage.
 
@@ -108,7 +115,7 @@ Figure 6 summarises the eight runs against two references. Instruction tuning, n
 
 # Evaluation and Results
 
-All 29 configurations were evaluated on the identical validation split with the same metric set — Accuracy, Precision, Recall and F1, reported per class and as macro averages, complemented by weighted F1, balanced accuracy and the Matthews correlation coefficient. Figure 7 condenses the grid: validation macro-F1 for every model × representation pair that was trained. Performance tracks how deeply the labelled data is used. The fine-tuned encoder leads at 0.853; the domain-matched frozen-embedding MLPs follow (0.774–0.817, with the tuned FinBERT + twitter-RoBERTa concatenation the best of them; the general-purpose MiniLM head reaches 0.723); the zero-shot instruct decoders sit next (0.729–0.763), outranking every representation trained from scratch in this project; the competitive lexical models reach 0.66–0.713; the BiLSTM lands level with them at 0.699; and averaged word2vec stays at or below 0.53. The imbalance-robust metrics tell the same story — the finalist also leads on MCC (0.779) and balanced accuracy (0.858) and is the only configuration with recall of at least 0.82 on all three classes.
+All 29 configurations were evaluated on the identical validation split with the same metric set — Accuracy, Precision, Recall and F1, reported per class and as macro averages, complemented by weighted F1, balanced accuracy and the Matthews correlation coefficient. Table 2 lists the leading model of each family against the majority baseline, and Figure 7 condenses the full grid: validation macro-F1 for every model × representation pair that was trained. Performance tracks how deeply the labelled data is used. The fine-tuned encoder leads at 0.853; the domain-matched frozen-embedding MLPs follow (0.774–0.817, with the tuned FinBERT + twitter-RoBERTa concatenation the best of them; the general-purpose MiniLM head reaches 0.723); the zero-shot instruct decoders sit next (0.729–0.763), outranking every representation trained from scratch in this project; the competitive lexical models reach 0.66–0.713; the BiLSTM lands level with them at 0.699; and averaged word2vec stays at or below 0.53. The imbalance-robust metrics tell the same story — the finalist also leads on MCC (0.779) and balanced accuracy (0.858) and is the only configuration with recall of at least 0.82 on all three classes.
 
 ![Validation macro-F1 for every evaluated model × feature combination.](figures/model_feature_heatmap.png){width=100%}
 
@@ -125,11 +132,11 @@ Table 2: Validation results for the leading model of each family against the maj
 
 The finalist's errors have a specific shape. Of the 165 misclassified validation tweets (11.5%), 149 involve Neutral on one side; direct polarity inversions — Bearish read as Bullish or the reverse — occur for only 16 tweets, 1.1% of the split. Inspection of the misclassified tweets shows the residual boundary is partly in the gold labels themselves: factual headlines with negative content such as "*Tata Steel plans to cut up to 3,000 European jobs*" are labelled Neutral in the corpus, and "*$AUPH holding it till $25 :)*" is labelled Neutral while expressing a bullish stance. The remaining headroom is therefore in Neutral-versus-polar calibration rather than in distinguishing the two polar classes.
 
-The protocol's final step scored the internal test split exactly once, with the selected model and no further decisions. The result, shown in Figure 8, is a macro-F1 of **0.832** with accuracy 0.868 — 0.021 below the validation score, the expected mild optimism from selecting the model on validation, and small enough to indicate that the selection protocol's estimates are reliable. The per-class structure carries over (Bearish recall 0.83, Bullish 0.79, Neutral 0.90), with Bearish precision showing the largest single change (0.78 to 0.73). This 0.832 is the unbiased performance estimate for the pipeline; the submitted predictions in `pred_12.csv` come from the same configuration retrained on all 9,543 labelled tweets in `tm_final_12_v2.ipynb`.
+The protocol's final step scored the internal test split exactly once, with the selected model and no further decisions. The result, shown in Figure 8, is a macro-F1 of **0.832** with accuracy 0.868 — 0.021 below the validation score, the expected mild optimism from selecting the model on validation, and small enough to indicate that the selection protocol's estimates are reliable. The per-class structure carries over (Bearish recall 0.83, Bullish 0.79, Neutral 0.90), with Bearish precision showing the largest single change (0.78 to 0.73). This 0.832 is the unbiased performance estimate for the pipeline; the submitted predictions in `pred_12.csv` come from the same configuration retrained on all 9,543 labelled tweets in `tm_final_12.ipynb`.
 
 ![Confusion matrix of the final model on the internal test split (counts and row percentages).](figures/confusion_test.png){width=52%}
 
-Three conclusions summarise the project. First, on a corpus whose sentiment is encoded in short, polarised word pairs, lexical models are competitive with — and a BiLSTM no better than — anything trained from scratch, while pretrained encoders dominate; the ordering of the 29 configurations is essentially an ordering of how much pretrained knowledge and labelled data each model consumes. Second, prompted decoders classify surprisingly well with zero labelled examples, but 6,679 labels and a fine-tuned 125M-parameter encoder beat them at a fraction of the inference cost. Third, the residual errors concentrate where the annotation itself is debatable, suggesting the practical ceiling on this corpus is set by label consistency rather than model capacity.
+Three conclusions summarise the project. First, because the corpus encodes sentiment in short, polarised word pairs, a model that simply counts those words is as strong as any model trained from scratch on 6,679 tweets: TF-IDF with Logistic Regression reaches 0.713 while the far more complex BiLSTM reaches 0.699. Every improvement beyond that level comes from pretrained knowledge — the ordering of the 29 configurations is essentially an ordering of how much pretrained knowledge and labelled data each model consumes. Second, prompted decoders classify surprisingly well with zero labelled examples, but 6,679 labels and a fine-tuned 125M-parameter encoder beat them at a fraction of the inference cost. Third, the residual errors concentrate where the annotation itself is debatable, suggesting the practical ceiling on this corpus is set by label consistency rather than model capacity.
 
 # Extra Work — Agentic Workflow
 

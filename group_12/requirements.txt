@@ -17,3 +17,6 @@ joblib
 python-dotenv
 xgboost
 scikeras
+sentence-transformers
+langchain-openai
+langchain-classic

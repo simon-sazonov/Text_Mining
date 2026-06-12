@@ -26,9 +26,9 @@
     stroke: none,
     align: (left, left),
     inset: (x: 14pt, y: 4pt),
+    [Artem Polikarpov], [20250443],
     [João Cardoso], [20240529],
     [Simon Sazonov], [20221689],
-    [Artem Polikarpov], [20250443],
   )
 
   #v(3em)

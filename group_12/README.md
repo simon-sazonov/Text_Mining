@@ -1,44 +1,35 @@
-# Text Mining Project — group_xx
+# Text Mining Project — Group 12
+
+Market sentiment classification of financial tweets: Bearish (0), Bullish (1), Neutral (2).
+
+## Contents
+
+- `tm_tests_12.ipynb` — all experiments: EDA, corpus split, preprocessing, feature engineering
+  (BoW, word2vec, transformer encoders), 16-model comparison, tuning, fine-tuning, evaluation,
+  plus Extra Work (two extra transformer encoders, decoder models, agentic workflow).
+- `tm_final_12.ipynb` — the single final pipeline (fine-tuned twitter-RoBERTa retrained on all
+  9,543 labelled tweets) → produces `pred_12.csv`.
+- `pred_12.csv` — predictions for the 2,388 test tweets (`id`, `label`).
+- `report_12.pdf` — project report.
+- `data/` — `train.csv` and `test.csv` as distributed.
 
 ## Setup
-1. Create a virtualenv and `pip install -r requirements.txt`.
-   (If gensim/tensorflow import errors appear, run `pip install "numpy<2"` and reinstall them.)
-2. Place `train.csv` and `test.csv` in the **parent** folder (`Text_Mining/`), or update `DATA_DIR` in
-   the notebooks if you keep them elsewhere.
-3. (Optional, for Sections 6–7) install Ollama and `ollama pull llama3.2:3b`. Otherwise a GPT-2
-   fallback runs automatically.
-4. (Optional) Hugging Face auth — the models are public, but anonymous downloads are rate-limited.
-   Copy `.env.example` to `.env` and paste your token (from https://huggingface.co/settings/tokens,
-   "Read" scope). The notebooks load it automatically; `.env` is gitignored. Never put the token
-   inside the notebooks. (`hf auth login` works too.)
+
+1. Python 3.11+, then `pip install -r requirements.txt`.
+2. (Optional) Hugging Face auth — models are public; anonymous downloads are rate-limited.
+   Copy `.env.example` to `.env` and paste a Read-scope token, or run `hf auth login`.
+3. The agentic section (Section 9 of the tests notebook) uses the course Azure OpenAI key at
+   `../nlp2026/Lab 5-20260521/Azure Open AI Key.txt`; its executed transcript is embedded in
+   the notebook, so re-running that section is optional.
 
 ## Run
-- **`tm_tests_xx.ipynb`** — all experiments. Run top to bottom in VS Code.
-  The transformer-embedding step (Sec 4.3) is the only slow part; it caches to `cache/` and never
-  recomputes on re-run. Expect it to take 20–60 min on CPU for the full ~9 k training set.
-- Fill every **"🔬 Analysis/Conclusion"** cell *after* running the code above it — these cells are
-  intentionally left as blanks with `____` placeholders. Write findings only from actual outputs.
-- **`tm_final_xx.ipynb`** — the single chosen pipeline; produces `pred_xx.csv`.
 
-## Outputs
-- `pred_xx.csv` (`id,label`) for the 299 test tweets.
-
-## Caching
-All expensive artifacts (cleaned text, Word2Vec, transformer embeddings, BiLSTM, decoder outputs)
-are stored in `cache/`. Delete a single file to force its rebuild; delete the whole folder to start fresh.
-Re-running the notebook after a completed run is fast — everything reloads from cache.
-
-## Version note
-`gensim` and `tensorflow` can conflict with NumPy 2.x. If imports fail, run:
-```
-pip install "numpy<2"
-pip install --force-reinstall gensim tensorflow
-```
-
-## Ollama (Sections 6–7)
-```bash
-# Install from https://ollama.com, then:
-ollama pull llama3.2:3b
-ollama serve          # if not already running
-```
-Set `OLLAMA_MODEL` in Section 6 to whatever model you pulled. GPT-2 is the automatic fallback.
+- Both notebooks run end-to-end without manual steps, on CPU or GPU (GPU used automatically).
+  The only exception is Section 9 of the tests notebook, which needs the course Azure key; without
+  it the section skips itself and the embedded transcript remains.
+- Expensive artifacts (embeddings, trained models, predictions) cache to `cache/` via
+  `load_or_build`; re-runs reload instead of recomputing. On a bare checkout the first full run
+  of `tm_tests_12.ipynb` takes ~30–45 min on GPU (hours on CPU, dominated by transformer
+  encoding and fine-tuning); `tm_final_12.ipynb` takes ~10 min on GPU.
+- `tm_final_12.ipynb` asserts the submission format before writing `pred_12.csv`
+  (2,388 rows, ids identical to `test.csv`, labels in {0, 1, 2}).
