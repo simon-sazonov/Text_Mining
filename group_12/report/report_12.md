@@ -144,14 +144,26 @@ The classification pipeline is wrapped in a conversational agent built with the 
 
 A scripted four-turn session, executed live in the tests notebook with the full reasoning trace, demonstrates the four coordination behaviours named in the challenge. A tweet about JPMorgan and Beyond Meat triggered the full chain — low-confidence lexical vote (Bullish, 0.43), escalation (transformer: Bearish, 0.50), disagreement, decoder consultation (Bearish), arbitrated verdict Bearish, which matches the corpus gold label. A second tweet stopped early when the transformer answered with confidence 0.93, sparing the decoder call. A quality question invoked the evaluation tool (lexical 0.683 against transformer 0.852 macro-F1 on a 200-tweet validation sample, 79.5% agreement). The final turn was answered from conversation memory, correctly recalling the earlier decision and its tool chain without new tool calls. Every reply names the tools used and why, so the orchestration is observable behaviour rather than a claim.
 
-# References
+# References {.unnumbered}
 
-- Araci, D. (2019). FinBERT: Financial Sentiment Analysis with Pre-trained Language Models. *arXiv:1908.10063*.
-- Barbieri, F., Camacho-Collados, J., Espinosa Anke, L., & Neves, L. (2020). TweetEval: Unified Benchmark and Comparative Evaluation for Tweet Classification. *Findings of EMNLP 2020*.
-- Devlin, J., Chang, M.-W., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. *NAACL-HLT 2019*.
-- Liu, Y., Ott, M., Goyal, N., Du, J., Joshi, M., Chen, D., Levy, O., Lewis, M., Zettlemoyer, L., & Stoyanov, V. (2019). RoBERTa: A Robustly Optimized BERT Pretraining Approach. *arXiv:1907.11692*.
-- Loureiro, D., Barbieri, F., Neves, L., Espinosa Anke, L., & Camacho-Collados, J. (2022). TimeLMs: Diachronic Language Models from Twitter. *ACL 2022 System Demonstrations*.
-- Mikolov, T., Sutskever, I., Chen, K., Corrado, G., & Dean, J. (2013). Distributed Representations of Words and Phrases and their Compositionality. *NeurIPS 2013*.
-- Radford, A., Wu, J., Child, R., Luan, D., Amodei, D., & Sutskever, I. (2019). Language Models are Unsupervised Multitask Learners. *OpenAI Technical Report*.
-- Sun, C., Qiu, X., Xu, Y., & Huang, X. (2019). How to Fine-Tune BERT for Text Classification? *China National Conference on Chinese Computational Linguistics (CCL 2019)*.
-- Wang, W., Wei, F., Dong, L., Bao, H., Yang, N., & Zhou, M. (2020). MiniLM: Deep Self-Attention Distillation for Task-Agnostic Compression of Pre-Trained Transformers. *NeurIPS 2020*.
+```{=typst}
+#set par(hanging-indent: 1.27cm, first-line-indent: 0pt)
+```
+
+Araci, D. (2019). *FinBERT: Financial sentiment analysis with pre-trained language models*. arXiv. https://arxiv.org/abs/1908.10063
+
+Barbieri, F., Camacho-Collados, J., Espinosa Anke, L., & Neves, L. (2020). TweetEval: Unified benchmark and comparative evaluation for tweet classification. *Findings of the Association for Computational Linguistics: EMNLP 2020*. https://arxiv.org/abs/2010.12421
+
+Devlin, J., Chang, M.-W., Lee, K., & Toutanova, K. (2019). BERT: Pre-training of deep bidirectional transformers for language understanding. *Proceedings of the 2019 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies*. https://arxiv.org/abs/1810.04805
+
+Liu, Y., Ott, M., Goyal, N., Du, J., Joshi, M., Chen, D., Levy, O., Lewis, M., Zettlemoyer, L., & Stoyanov, V. (2019). *RoBERTa: A robustly optimized BERT pretraining approach*. arXiv. https://arxiv.org/abs/1907.11692
+
+Loureiro, D., Barbieri, F., Neves, L., Espinosa Anke, L., & Camacho-Collados, J. (2022). TimeLMs: Diachronic language models from Twitter. *Proceedings of the 60th Annual Meeting of the Association for Computational Linguistics: System Demonstrations*. https://arxiv.org/abs/2202.03829
+
+Mikolov, T., Sutskever, I., Chen, K., Corrado, G. S., & Dean, J. (2013). Distributed representations of words and phrases and their compositionality. *Advances in Neural Information Processing Systems, 26*. https://arxiv.org/abs/1310.4546
+
+Radford, A., Wu, J., Child, R., Luan, D., Amodei, D., & Sutskever, I. (2019). *Language models are unsupervised multitask learners*. OpenAI. https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf
+
+Sun, C., Qiu, X., Xu, Y., & Huang, X. (2019). How to fine-tune BERT for text classification? *Chinese Computational Linguistics (CCL 2019)*. Springer. https://arxiv.org/abs/1905.05583
+
+Wang, W., Wei, F., Dong, L., Bao, H., Yang, N., & Zhou, M. (2020). MiniLM: Deep self-attention distillation for task-agnostic compression of pre-trained transformers. *Advances in Neural Information Processing Systems, 33*. https://arxiv.org/abs/2002.10957
