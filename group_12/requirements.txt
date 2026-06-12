@@ -10,9 +10,10 @@ gensim
 torch
 transformers
 datasets
-tensorflow
 langchain
 langchain-community
 requests
 joblib
 python-dotenv
+xgboost
+scikeras
